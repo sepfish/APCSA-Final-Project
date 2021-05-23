@@ -1,28 +1,81 @@
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 import java.io.File;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
 
 public class Character {
-    public static BufferedImage stand;
-    public static BufferedImage run1;
-    public static BufferedImage run2;
-    public static BufferedImage run3;
+    private int x;
+    private int y;
+    private static BufferedImage stand;
+    private static BufferedImage run1;
+    private static BufferedImage run2;
+    private static BufferedImage run3;
+    private static BufferedImage run4;
+
+    private int walkCount;
+    private int jumpCount;
 
     public Character() {
         try {
-            File file = new File("megamix-rin.png");
-            stand = ImageIO.read(file);
+            File file = new File("media/run-1.png");
+            run1 = ImageIO.read(file);
+            file = new File("media/run-2.png");
+            run2 = ImageIO.read(file);
+            file = new File("media/run-3.png");
+            run3 = ImageIO.read(file);
+            file = new File("media/run-4.png");
+            run4 = ImageIO.read(file);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        x = 0;
+        y = 0;
+        jumpCount = 0;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void update() {
+        walkCount++;
+    }
+
+    public void move(String dir) {
+        if (dir.equals("up")) {
+            y -= jumpCount;
+            jumpCount++;
+        } else if (dir.equals("down")) {
+            jumpCount--;
+            y += jumpCount;
         }
     }
 
     public void draw(Graphics window) {
-        window.drawImage(stand, 0, 0, 178, 290, null);
+        if (walkCount/5 % 4 == 0) {
+            window.drawImage(run1, x, y, 174, 210, null);
+        } else if (walkCount/5 % 4 == 1) {
+            window.drawImage(run2, x, y, 174, 210, null);
+        } else if (walkCount/5 % 4 == 2) {
+            window.drawImage(run3, x, y, 174, 210, null);
+        } else if (walkCount/5 % 4 == 3) {
+            window.drawImage(run4, x, y, 174, 210, null);
+        }
+        
      }
 
     public void setImages(String stand, String run1, String run2, String run3) {

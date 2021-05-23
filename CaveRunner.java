@@ -18,8 +18,10 @@ public class CaveRunner {
 		frame.setVisible(true);
 		frame.getContentPane().setPreferredSize(new Dimension(800, 600));
         frame.addKeyListener(gamePanel);
-        frame.setTitle("Cave Runner");
+        frame.addMouseListener(gamePanel);
+        frame.setTitle("CAVE RUNNER");
         frame.pack();
+        gamePanel.start();
     }
 
     public static void main(String... getReady) {
