@@ -3,3 +3,9 @@ pls fix sounds :(((((((((((
     also I added overlay images so draw those I guess
 sounds are not really fixed idk but only mp3s work
     also character size is 145x175 so do with that what you will
+    added one whole character (I saved the base... obviously)
+    added character select screen
+    started making the obstacle class
+pls figure out how to reset when character is hit
+    idk I think I did stuff?
+    please remember to get rid of song.java whenever you can

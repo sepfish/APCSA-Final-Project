@@ -7,36 +7,48 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Scanner;
+
 import javax.swing.Timer;
 
 import javazoom.jl.player.advanced.AdvancedPlayer;
 import java.awt.Graphics;
 import java.awt.Color;
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.MouseInfo;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener, MouseListener{
+    //game objects
     Character c;
     Timer t;
-    int currentState;
     AdvancedPlayer buttonClick;
-    Song pain;
-    boolean painStart;
+    Song temp;
+    Obstacle o;
+    int score;
 
+    //other things
+    boolean tempStart;
+    int currentState;
     int count = 0;
-    boolean canJump = false;
+    boolean canJump;
+    int oneSixtiethSeconds;
 
     public GamePanel() {
         t = new Timer(1000/60, this);
         c = new Character();
-        c.setY(240);
+        c.setY(265);
         currentState = 0;
         loadSongs();
-        painStart = false;
-        pain = new Song("media/water-click.mp3");
+        tempStart = true;
+        canJump = false;
+        temp = new Song("media/water-click.mp3");
+        o = new Obstacle(800, 395, Obstacle.baseSpeed);
+        score = 0;
     }
 
     public void start() {
@@ -80,8 +92,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        int mouseX = (int)MouseInfo.getPointerInfo().getLocation().getX();
-        int mouseY = (int)MouseInfo.getPointerInfo().getLocation().getY();
+        int mouseX = (int)(MouseInfo.getPointerInfo().getLocation().getX() - this.getLocationOnScreen().getX() + 8);
+        int mouseY = (int)(MouseInfo.getPointerInfo().getLocation().getY() - this.getLocationOnScreen().getY() + 31);
         if (mouseX > 182 && mouseX < 375 && mouseY > 344 && mouseY < 397) {
             try {
                 g.drawImage(ImageIO.read(new File("media/start-overlay.png")), 0, 0, 800, 600, null);
@@ -98,37 +110,145 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         }
     }
 
+
     public void drawHelp(Graphics g) {
+        if (!tempStart) {
+            temp.play();
+            tempStart = true;
+        }
         g.setColor(new Color(200, 210, 255));
         g.fillRect(0, 0, 800, 600);
     }
 
-    public void drawGame(Graphics g) {
-        if (!painStart) {
-            pain.play();
-            painStart = true;
-        } else {
-        g.setColor(Color.DARK_GRAY);
-        g.fillRect(0, 0, 800, 600);
-        g.setColor(Color.LIGHT_GRAY);
-        g.fillRect(0, 150, 800, 300);
-        
-        c.update();
-        c.draw(g);
-
-        if (canJump) {
-            if (count < 16) {
-                c.move("up");
-            } else if (count < 32) {
-                c.move("down");
-            } 
-            count++;
-            if (count == 32) {
-                count = 0;
-                canJump = false;
+    public void drawSelect(Graphics g) {
+        if (!tempStart) {
+            temp.play();
+            tempStart = true;
+        }
+        try {
+            g.drawImage(ImageIO.read(new File("media/chara-select-alt.png")), 0, 0, 800, 600, null);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        int mouseX = (int)(MouseInfo.getPointerInfo().getLocation().getX() - this.getLocationOnScreen().getX() + 8);
+        int mouseY = (int)(MouseInfo.getPointerInfo().getLocation().getY() - this.getLocationOnScreen().getY() + 31);
+        if (mouseX > 703 && mouseX < 784 && mouseY > 287 && mouseY < 398) {
+            try {
+                g.drawImage(ImageIO.read(new File("media/rightarrow-overlay.png")), 0, 0, 800, 600, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (mouseX > 30 && mouseX < 111 && mouseY > 287 && mouseY < 398) {
+            try {
+                g.drawImage(ImageIO.read(new File("media/leftarrow-overlay.png")), 0, 0, 800, 600, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (mouseX > 273 && mouseX < 541 && mouseY > 517 && mouseY < 573) {
+            try {
+                g.drawImage(ImageIO.read(new File("media/letsgo-overlay.png")), 0, 0, 800, 600, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (mouseX > 23 && mouseX < 90 && mouseY > 58 && mouseY < 126) {
+            try {
+                g.drawImage(ImageIO.read(new File("media/back-overlay.png")), 0, 0, 800, 600, null);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
+
+    public void drawGame(Graphics g) {
+        if (!tempStart) {
+            temp.play();
+            tempStart = true;
+        } else {
+            g.setColor(new Color(38, 44, 71));
+            g.fillRect(0, 0, 800, 600);
+            g.setColor(Color.LIGHT_GRAY);
+            g.fillRect(0, 125, 800, 350);
+            int mouseX = (int)(MouseInfo.getPointerInfo().getLocation().getX() - this.getLocationOnScreen().getX() + 8);
+            int mouseY = (int)(MouseInfo.getPointerInfo().getLocation().getY() - this.getLocationOnScreen().getY() + 31);
+            try {
+                g.drawImage(ImageIO.read(new File("media/back.png")), 0, 0, 800, 600, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (mouseX > 23 && mouseX < 90 && mouseY > 58 && mouseY < 126) {
+                try {
+                    g.drawImage(ImageIO.read(new File("media/back-overlay.png")), 0, 0, 800, 600, null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            o.update();
+            o.draw(g);
+
+            c.update();
+            c.draw(g);
+
+            if (c.collide(o)) {
+                score = 0;
+                o.reset();
+            }
+
+            int highScore = 0;
+            
+            try {
+                Scanner sc = new Scanner(new File("scores.txt"));
+                highScore = Integer.parseInt(sc.nextLine().trim());
+                sc.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+            try {
+                FileWriter f = new FileWriter(new File("scores.txt"), false);
+                if (score > highScore) {
+                    f.write(score + "");
+                } else {
+                    f.write(highScore + "");
+                }
+                f.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+
+            g.setColor(new Color(38, 44, 71));
+            g.drawString("Score: " + score, 30, 500);
+            g.drawString("High Score: " + highScore, 30, 520);
+            g.setColor(Color.WHITE);
+            g.drawString("Score: " + score, 30, 500);
+            g.drawString("High Score: " + highScore, 30, 520);
+
+            if (canJump) {
+                if (count < 20) {
+                    c.move("up");
+                } else if (25 <= count && count < 45) {
+                    c.move("down");
+                } 
+                count++;
+                if (count == 45) {
+                    count = 0;
+                    canJump = false;
+                    c.move("reset");
+                }
+            }
+            oneSixtiethSeconds++;
+            if (oneSixtiethSeconds%15 == 0) {
+                score++;
+            }
+            if (oneSixtiethSeconds%120 == 0) {
+                o.setSpeed(o.getSpeed()+1);
+            }
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -137,6 +257,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
        } else if (currentState == 1) {
            drawHelp(g);
        } else if (currentState == 2) {
+           drawSelect(g);
+       } else if (currentState == 3) {
            drawGame(g);
        }
     }
@@ -183,12 +305,24 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         if (mouseX > 182 && mouseX < 375 && mouseY > 344 && mouseY < 397) {
             if (currentState == 0) {
                 currentState = 2;
+                tempStart = false;
             }
         }
         if (mouseX > 439 && mouseX < 630 && mouseY > 344 && mouseY < 397) {
             if (currentState == 0) {
                 currentState = 1;
+                tempStart = false;
             }
+        }
+        if (mouseX > 273 && mouseX < 541 && mouseY > 517 && mouseY < 573) {
+            if (currentState == 2) {
+                currentState = 3;
+                tempStart = false;
+            }
+        }
+        if (mouseX > 23 && mouseX < 90 && mouseY > 58 && mouseY < 126) {
+            currentState = 0;
+            tempStart = false;
         }
     }
 

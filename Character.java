@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
+import java.awt.Color;
 
 public class Character {
     private int x;
@@ -55,24 +56,33 @@ public class Character {
         walkCount++;
     }
 
+    public boolean collide(Obstacle o) {
+        return (o.getX() > 75) && (o.getX() < x + 125) && (o.getY() < y + 210);
+    }
+
     public void move(String dir) {
         if (dir.equals("up")) {
-            y -= jumpCount;
+            y -= (int)(0.8*jumpCount);
             jumpCount++;
         } else if (dir.equals("down")) {
             jumpCount--;
-            y += jumpCount;
+            y += (int)(0.8*jumpCount);
+        } else if (dir.equals("reset")) {
+            jumpCount = 0;
         }
     }
 
     public void draw(Graphics window) {
-        if (walkCount/5 % 4 == 0) {
+        //window.setColor(Color.YELLOW);
+        //window.fillRect(x, y, 174, 210);
+        
+        if (walkCount/8 % 4 == 0) {
             window.drawImage(run1, x, y, 174, 210, null);
-        } else if (walkCount/5 % 4 == 1) {
+        } else if (walkCount/8 % 4 == 1) {
             window.drawImage(run2, x, y, 174, 210, null);
-        } else if (walkCount/5 % 4 == 2) {
+        } else if (walkCount/8 % 4 == 2) {
             window.drawImage(run3, x, y, 174, 210, null);
-        } else if (walkCount/5 % 4 == 3) {
+        } else if (walkCount/8 % 4 == 3) {
             window.drawImage(run4, x, y, 174, 210, null);
         }
         
