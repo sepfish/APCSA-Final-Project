@@ -9,7 +9,7 @@ import java.awt.Color;
 public class Character {
     private int x;
     private int y;
-    private static BufferedImage stand;
+    private static BufferedImage face;
     private static BufferedImage run1;
     private static BufferedImage run2;
     private static BufferedImage run3;
@@ -56,8 +56,12 @@ public class Character {
         walkCount++;
     }
 
-    public boolean collide(Obstacle o) {
+    public boolean collide(Stalagmite o) {
         return (o.getX() > 75) && (o.getX() < x + 125) && (o.getY() < y + 210);
+    }
+
+    public boolean collide(Stalactite o) {
+        return (o.getX() > 75) && (o.getX() < x + 125) && (o.getY() + 165 > y);
     }
 
     public void move(String dir) {
@@ -90,7 +94,7 @@ public class Character {
 
     public void setImages(String stand, String run1, String run2, String run3) {
         try {
-            this.stand = ImageIO.read(this.getClass().getResourceAsStream(stand));
+            this.face = ImageIO.read(this.getClass().getResourceAsStream(stand));
             this.run1 = ImageIO.read(this.getClass().getResourceAsStream(run1));
             this.run2 = ImageIO.read(this.getClass().getResourceAsStream(run2));
             this.run3 = ImageIO.read(this.getClass().getResourceAsStream(run3));

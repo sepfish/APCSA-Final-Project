@@ -5,7 +5,7 @@ public class Obstacle {
     private int x;
     private int y;
     private int speed;
-    public static final int baseSpeed = 7;
+    public static final int baseSpeed = 6;
 
     public Obstacle(int x, int y, int sp) {
         this.x = x;

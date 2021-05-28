@@ -28,11 +28,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
     Timer t;
     AdvancedPlayer buttonClick;
     Song temp;
-    Obstacle o;
+    Song ouch;
+    Stalactite top;
+    Stalagmite bottom;
     int score;
 
     //other things
     boolean tempStart;
+    boolean ouchStart;
     int currentState;
     int count = 0;
     boolean canJump;
@@ -45,9 +48,12 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         currentState = 0;
         loadSongs();
         tempStart = true;
+        ouchStart = false;
         canJump = false;
         temp = new Song("media/water-click.mp3");
-        o = new Obstacle(800, 395, Obstacle.baseSpeed);
+        ouch = new Song("media/ouch.mp3");
+        top = new Stalactite(800, Obstacle.baseSpeed);
+        bottom = new Stalagmite(800, Obstacle.baseSpeed);
         score = 0;
     }
 
@@ -57,6 +63,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
 
     private void loadSongs() {
         InputStream sound1 = null;
+        buttonClick = null;
         try {
 			sound1 = new FileInputStream("media/water-click.mp3");
 		} catch (FileNotFoundException e) {
@@ -86,8 +93,12 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
 
 
     public void drawMenu(Graphics g) {
+        if (!tempStart) {
+            temp.play();
+            tempStart = true;
+        }
         try {
-            g.drawImage(ImageIO.read(new File("media/menu.png")), 0, 0, 800, 600, null);
+            g.drawImage(ImageIO.read(new File("media/menu-alt.png")), 0, 0, 800, 600, null);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -115,9 +126,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         if (!tempStart) {
             temp.play();
             tempStart = true;
+        } else {
+            g.setColor(new Color(200, 210, 255));
+            g.fillRect(0, 0, 800, 600);
         }
-        g.setColor(new Color(200, 210, 255));
-        g.fillRect(0, 0, 800, 600);
+        
     }
 
     public void drawSelect(Graphics g) {
@@ -127,6 +140,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         }
         try {
             g.drawImage(ImageIO.read(new File("media/chara-select-alt.png")), 0, 0, 800, 600, null);
+            g.drawImage(ImageIO.read(new File("media/chara1-profile.png")), 237, 125, 319, 385, null);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -165,12 +179,14 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
 
     public void drawGame(Graphics g) {
         if (!tempStart) {
+            top.reset();
+            bottom.reset();
             temp.play();
             tempStart = true;
         } else {
-            g.setColor(new Color(38, 44, 71));
+            g.setColor(new Color(18, 24, 51));
             g.fillRect(0, 0, 800, 600);
-            g.setColor(Color.LIGHT_GRAY);
+            g.setColor(new Color(88, 91, 107));
             g.fillRect(0, 125, 800, 350);
             int mouseX = (int)(MouseInfo.getPointerInfo().getLocation().getX() - this.getLocationOnScreen().getX() + 8);
             int mouseY = (int)(MouseInfo.getPointerInfo().getLocation().getY() - this.getLocationOnScreen().getY() + 31);
@@ -186,15 +202,24 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
                     e.printStackTrace();
                 }
             }
-            o.update();
-            o.draw(g);
+            top.update();
+            top.draw(g);
+            bottom.update();
+            bottom.draw(g);
 
             c.update();
             c.draw(g);
 
-            if (c.collide(o)) {
+            if (c.collide(bottom)) {
                 score = 0;
-                o.reset();
+                oneSixtiethSeconds = 0;
+                if (!ouchStart) {
+                    ouch.play();
+                    ouchStart = true;
+                }
+                top.reset();
+                bottom.reset();
+                ouchStart = false;
             }
 
             int highScore = 0;
@@ -221,7 +246,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
             }
             
 
-            g.setColor(new Color(38, 44, 71));
+            g.setColor(new Color(18, 24, 51));
             g.drawString("Score: " + score, 30, 500);
             g.drawString("High Score: " + highScore, 30, 520);
             g.setColor(Color.WHITE);
@@ -246,7 +271,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
                 score++;
             }
             if (oneSixtiethSeconds%120 == 0) {
-                o.setSpeed(o.getSpeed()+1);
+                top.setSpeed(top.getSpeed()+1);
+                bottom.setSpeed(top.getSpeed()+1);
             }
         }
     }
