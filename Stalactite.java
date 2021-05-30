@@ -12,6 +12,6 @@ public class Stalactite extends Obstacle{
 
     public void draw(Graphics g) {
         g.setColor(Color.CYAN);
-        g.fillRect(getX(), getY(), 40, 165);
+        g.fillRect(getX(), getY(), 40, 185);
     }
 }  

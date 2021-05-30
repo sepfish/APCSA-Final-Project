@@ -17,6 +17,7 @@ public class Character {
 
     private int walkCount;
     private int jumpCount;
+    private boolean crouch;
 
     public Character() {
         try {
@@ -31,9 +32,10 @@ public class Character {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        x = 0;
-        y = 0;
+        setX(0);
+        setY(265);
         jumpCount = 0;
+        crouch = false;
     }
 
     public int getX() {
@@ -56,38 +58,54 @@ public class Character {
         walkCount++;
     }
 
-    public boolean collide(Stalagmite o) {
-        return (o.getX() > 75) && (o.getX() < x + 125) && (o.getY() < y + 210);
+    public boolean collide(Obstacle o) {
+        if (o instanceof Stalagmite) {
+            return (o.getX() > 75) && (o.getX() < x + 125) && (o.getY() < y + 210);
+        } else if (o instanceof Stalactite) {
+            return (o.getX() > 75) && (o.getX() < x + 125) && (o.getY() + 165 > y);
+        } else {
+            return false;
+        }        
     }
 
-    public boolean collide(Stalactite o) {
-        return (o.getX() > 75) && (o.getX() < x + 125) && (o.getY() + 165 > y);
+    public boolean isCrouching() {
+        return crouch;
     }
 
     public void move(String dir) {
-        if (dir.equals("up")) {
-            y -= (int)(0.8*jumpCount);
-            jumpCount++;
-        } else if (dir.equals("down")) {
-            jumpCount--;
-            y += (int)(0.8*jumpCount);
-        } else if (dir.equals("reset")) {
-            jumpCount = 0;
+        if (dir.equals("crouch")) {
+            crouch = true;
+        } else {
+            crouch = false;
+            if (dir.equals("up")) {
+                y -= (int)(0.8*jumpCount);
+                jumpCount++;
+            } else if (dir.equals("down")) {
+                jumpCount--;
+                y += (int)(0.8*jumpCount);
+            } else if (dir.equals("reset")) {
+                jumpCount = 0; 
+            }
         }
     }
 
     public void draw(Graphics window) {
         //window.setColor(Color.YELLOW);
         //window.fillRect(x, y, 174, 210);
-        
-        if (walkCount/8 % 4 == 0) {
-            window.drawImage(run1, x, y, 174, 210, null);
-        } else if (walkCount/8 % 4 == 1) {
-            window.drawImage(run2, x, y, 174, 210, null);
-        } else if (walkCount/8 % 4 == 2) {
-            window.drawImage(run3, x, y, 174, 210, null);
-        } else if (walkCount/8 % 4 == 3) {
-            window.drawImage(run4, x, y, 174, 210, null);
+        if (!crouch) {
+            if (walkCount/8 % 4 == 0) {
+                window.drawImage(run1, x, y, 174, 210, null);
+            } else if (walkCount/8 % 4 == 1) {
+                window.drawImage(run2, x, y, 174, 210, null);
+            } else if (walkCount/8 % 4 == 2) {
+                window.drawImage(run3, x, y, 174, 210, null);
+            } else if (walkCount/8 % 4 == 3) {
+                window.drawImage(run4, x, y, 174, 210, null);
+            }
+        } else {
+            setY(315);
+            window.setColor(Color.YELLOW);
+            window.fillRect(x, y, 124, 160);
         }
         
      }
