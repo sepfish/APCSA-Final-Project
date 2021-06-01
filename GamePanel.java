@@ -203,9 +203,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         initializeObs();
         obsIndex = 0;
         score = 0;
-        oneSixtiethSeconds++;
+        oneSixtiethSeconds = 0;
         speed = Obstacle.baseSpeed;
-        c.setY(265);
+        if (!canJump) {
+            c.setY(265);
+        }
     }
 
     public void drawGame(Graphics g) {
@@ -227,6 +229,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
             int mouseY = (int)(MouseInfo.getPointerInfo().getLocation().getY() - this.getLocationOnScreen().getY() + 31);
             try {
                 g.drawImage(ImageIO.read(new File("media/back.png")), 0, 0, 800, 600, null);
+                g.drawImage(ImageIO.read(new File("media/test.png")), 0, 125, 800, 350, null);
+                g.drawImage(ImageIO.read(new File("media/test2.png")), -score*2, 125, 800, 350, null);
+                g.drawImage(ImageIO.read(new File("media/test2.png")), 800-score*2, 125, 800, 350, null);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -308,10 +313,10 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
                 obsIndex = 0;
             }
             obstacles.get(obsIndex).setSpeed(speed);
-            if (songSixtiethSeconds == 16500 && bkgStart) {
+            if (songSixtiethSeconds/60 == 275 && bkgStart) {
                 bkg.stop();
                 bkgStart = false;
-                songSixtiethSeconds++;
+                songSixtiethSeconds = 0;
             }
         
     }
@@ -330,12 +335,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_UP) {
+        if (e.getKeyCode() == KeyEvent.VK_UP && !c.collide(obstacles.get(obsIndex))) {
             if (!c.isCrouching()) {
                 canJump = true;
             }
@@ -364,7 +368,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
     public void mouseClicked(MouseEvent e) {
         int mouseX = e.getX();
         int mouseY = e.getY();
-        System.out.println("(" + mouseX + ", " + mouseY + ")");
+        //System.out.println("(" + mouseX + ", " + mouseY + ")");
         if (mouseX > 182 && mouseX < 375 && mouseY > 344 && mouseY < 397) {
             if (currentState == 0) {
                 currentState = 2;
@@ -390,24 +394,18 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
+    public void mousePressed(MouseEvent e) {        
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
     }
 
     @Override
-    public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
+    public void mouseExited(MouseEvent e) {        
     }
 }

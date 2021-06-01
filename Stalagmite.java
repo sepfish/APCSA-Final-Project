@@ -6,7 +6,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Stalagmite extends Obstacle{
-    private static BufferedImage image;
 
     public Stalagmite(int x, int speed) {
         super(x, 395, speed);
