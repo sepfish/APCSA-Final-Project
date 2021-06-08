@@ -42,7 +42,7 @@ public class Obstacle {
         }
     }
 
-    public void reset() {
+    public void reset() { 
         x = 800;
         setSpeed(baseSpeed);
     }
