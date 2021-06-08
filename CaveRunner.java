@@ -24,7 +24,7 @@ public class CaveRunner {
         gamePanel.start();
     }
 
-    public static void main(String... getReady) {
+    public static void main(String... arguments) {
         CaveRunner c = new CaveRunner();
         c.start();
     }

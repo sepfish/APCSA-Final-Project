@@ -9,30 +9,38 @@ import java.awt.Graphics;
 public class Character {
     private int x;
     private int y;
-    private ArrayList<BufferedImage> runImages;
-    private ArrayList<BufferedImage> crouchImages;
+    private ArrayList<BufferedImage> chara1Images;
+    private ArrayList<BufferedImage> chara2Images;
 
     private int walkCount;
     private int jumpCount;
     private boolean crouch;
 
     public Character() {
-        runImages = new ArrayList<BufferedImage>();
-        crouchImages = new ArrayList<BufferedImage>();
+        chara1Images = new ArrayList<BufferedImage>();
+        chara2Images = new ArrayList<BufferedImage>();
         try {
-            runImages.add(ImageIO.read(new File("media/run-1.png")));
-            runImages.add(ImageIO.read(new File("media/run-2.png")));
-            runImages.add(ImageIO.read(new File("media/run-3.png")));
-            runImages.add(ImageIO.read(new File("media/run-4.png")));
-            crouchImages.add(ImageIO.read(new File("media/crouch1.png")));
-            crouchImages.add(ImageIO.read(new File("media/crouch-2.png")));
-            crouchImages.add(ImageIO.read(new File("media/crouch3.png")));
-            crouchImages.add(ImageIO.read(new File("media/crouch4.png")));
+            chara1Images.add(ImageIO.read(new File("media/run-1.png")));
+            chara1Images.add(ImageIO.read(new File("media/run-2.png")));
+            chara1Images.add(ImageIO.read(new File("media/run-3.png")));
+            chara1Images.add(ImageIO.read(new File("media/run-4.png")));
+            chara1Images.add(ImageIO.read(new File("media/crouch1.png")));
+            chara1Images.add(ImageIO.read(new File("media/crouch-2.png")));
+            chara1Images.add(ImageIO.read(new File("media/crouch3.png")));
+            chara1Images.add(ImageIO.read(new File("media/crouch4.png")));
+            chara2Images.add(ImageIO.read(new File("media/char2run1.png")));
+            chara2Images.add(ImageIO.read(new File("media/char2run2.png")));
+            chara2Images.add(ImageIO.read(new File("media/char2run3.png")));
+            chara2Images.add(ImageIO.read(new File("media/char2run4.png")));
+            chara2Images.add(ImageIO.read(new File("media/c2crouch-1.png")));
+            chara2Images.add(ImageIO.read(new File("media/c2crouch-2.png")));
+            chara2Images.add(ImageIO.read(new File("media/c2crouch-3.png")));
+            chara2Images.add(ImageIO.read(new File("media/c2crouch-4.png")));
         } catch (IOException e) {
             e.printStackTrace();
         }
         setX(0);
-        setY(265);
+        setY(6);
         jumpCount = 0;
         crouch = false;
     }
@@ -84,19 +92,28 @@ public class Character {
                 y += (int)(0.8*jumpCount);
             } else if (dir.equals("reset")) {
                 jumpCount = 0; 
-                setY(265);
+                setY(266);
             }
         }
     }
 
-    public void draw(Graphics window) {
+    public void draw(Graphics window, int i) {
         //window.setColor(Color.YELLOW);
         //window.fillRect(x, y, 174, 210);
         if (!crouch) {
-            window.drawImage(runImages.get(walkCount/8%4), x, y, 174, 210, null);
+            if (i == 0) {
+                window.drawImage(chara1Images.get(walkCount/8%4), x, y, 174, 210, null);
+            } else {
+                window.drawImage(chara2Images.get(walkCount/8%4), x, y, 174, 210, null);
+            }
         } else {
             setY(330);
-            window.drawImage(crouchImages.get(walkCount/8%4), x, y, 174, 150, null);            
+            if (i == 0) {
+                window.drawImage(chara1Images.get(walkCount/8%4+4), x, y, 174, 150, null);
+            } else {
+                window.drawImage(chara2Images.get(walkCount/8%4+4), x, y, 174, 150, null);
+            }
+                        
         }
      }
 }

@@ -8,33 +8,30 @@ import java.awt.event.MouseListener;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import javazoom.jl.player.advanced.AdvancedPlayer;
+
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener, MouseListener{
     //game objects
     Character c;
     Timer t;
-    AdvancedPlayer buttonClick;
-    Song temp;
-    Song ouch;
-    Song bkg;
+    Sound music;
+    Sound click;
+    Sound ouch;
     int score;
     ArrayList<Obstacle> obstacles;
+    int charaSelect = 0;
 
     //other things
-    boolean tempStart;
+    boolean clickStart;
     boolean ouchStart;
-    boolean bkgStart;
+    boolean musicStart;
     int currentState;
     int count = 0;
     boolean canJump;
@@ -47,14 +44,13 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         t = new Timer(1000/60, this);
         c = new Character();
         currentState = 0;
-        loadSongs();
-        tempStart = true;
+        clickStart = true;
         ouchStart = false;
-        bkgStart = false;
+        musicStart = false;
         canJump = false;
-        temp = new Song("media/water-click.mp3");
-        ouch = new Song("media/ouch.mp3");
-        bkg = new Song("media/grey-surii.mp3");
+        music = new Sound("media/grey-surii.mp3");
+        ouch = new Sound("media/ouch.mp3");
+        click = new Sound("media/water-click.mp3");
         score = 0;
         obsIndex = 0;
         speed = Obstacle.baseSpeed;
@@ -80,44 +76,18 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         t.start();
     }
 
-    private void loadSongs() {
-        InputStream sound1 = null;
-        buttonClick = null;
-        try {
-			sound1 = new FileInputStream("media/water-click.mp3");
-		} catch (FileNotFoundException e) {
-			sound1 = this.getClass().getResourceAsStream("media/water-click.mp3");
-		}
-        try {
-			buttonClick = new AdvancedPlayer(sound1);
-		} catch (Exception e) {
-            e.printStackTrace();
-		}
-    }
-
-    private void playSound(AdvancedPlayer a, int duration) {
-		Thread t = new Thread() {
-			public void run() {
-				try {
-					if (duration > 0)
-						a.play(duration);
-					else
-						a.play();
-				} catch (Exception e) {
-				}
-			}
-		};
-		t.start();
-	}
-
     public void drawMenu(Graphics g) {
-        bkgStart = false;
-        bkg.stop();
         songSixtiethSeconds = 0;
-        if (!tempStart) {
-            temp.play();
-            tempStart = true;
+        //playing sound
+        if (!clickStart) {
+            click.play();
+            clickStart = true;
+        } 
+        if (musicStart) {
+            musicStart = false;
+            music.stop();
         }
+        //drawing images
         try {
             g.drawImage(ImageIO.read(new File("media/menu-alt.png")), 0, 0, 800, 600, null);
         } catch (IOException e) {
@@ -142,26 +112,54 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         }
     }
 
-
     public void drawHelp(Graphics g) {
-        if (!tempStart) {
-            temp.play();
-            tempStart = true;
+        //playing sound
+        if (!clickStart) {
+            click.play();
+            clickStart = true;
+        //drawing images
         } else {
-            g.setColor(new Color(200, 210, 255));
-            g.fillRect(0, 0, 800, 600);
+            try {
+                g.drawImage(ImageIO.read(new File("media/help.png")), 0, 0, 800, 600, null);
+                g.drawImage(ImageIO.read(new File("media/back.png")), 0, 0, 800, 600, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        //"buttons"
+            int mouseX = (int)(MouseInfo.getPointerInfo().getLocation().getX() - this.getLocationOnScreen().getX() + 8);
+            int mouseY = (int)(MouseInfo.getPointerInfo().getLocation().getY() - this.getLocationOnScreen().getY() + 31);
+            if (mouseX > 23 && mouseX < 90 && mouseY > 58 && mouseY < 126) {
+                try {
+                    g.drawImage(ImageIO.read(new File("media/back-overlay.png")), 0, 0, 800, 600, null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        
     }
 
     public void drawSelect(Graphics g) {
-        if (!tempStart) {
-            temp.play();
-            tempStart = true;
+        //playing sound
+        if (!clickStart) {
+            click.play();
+            clickStart = true;
         }
+        //read character selection
+        try {
+            Scanner sc = new Scanner(new File("chara.txt"));
+            charaSelect = Integer.parseInt(sc.nextLine().trim());
+            sc.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //drawing images
         try {
             g.drawImage(ImageIO.read(new File("media/chara-select-alt.png")), 0, 0, 800, 600, null);
-            g.drawImage(ImageIO.read(new File("media/chara1-profile.png")), 237, 125, 319, 385, null);
+            if (charaSelect == 0) {
+                g.drawImage(ImageIO.read(new File("media/chara1-profile.png")), 237, 125, 319, 385, null);
+            } else if (charaSelect == 1) {
+                g.drawImage(ImageIO.read(new File("media/char2portrait.png")), 237, 125, 319, 385, null);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -206,82 +204,82 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         oneSixtiethSeconds = 0;
         speed = Obstacle.baseSpeed;
         if (!canJump) {
-            c.setY(265);
+            c.setY(266);
         }
     }
 
     public void drawGame(Graphics g) {
-        if (!tempStart) {
+        if (!clickStart) {
             reset();
-            temp.play();
-            tempStart = true;
+            click.play();
+            clickStart = true;
         }
-        if (!bkgStart) {
-                bkg.play();
-                bkgStart = true;
-            }
-            g.setColor(new Color(18, 24, 51));
-            g.fillRect(0, 0, 800, 600);
-            g.setColor(new Color(88, 91, 107));
-            g.fillRect(0, 125, 800, 350);
-            //for "buttons"
-            int mouseX = (int)(MouseInfo.getPointerInfo().getLocation().getX() - this.getLocationOnScreen().getX() + 8);
-            int mouseY = (int)(MouseInfo.getPointerInfo().getLocation().getY() - this.getLocationOnScreen().getY() + 31);
+        if (!musicStart) {
+            music.play();
+            musicStart = true;
+        }
+        g.setColor(new Color(18, 24, 51));
+        g.fillRect(0, 0, 800, 600);
+        g.setColor(new Color(88, 91, 107));
+        g.fillRect(0, 125, 800, 350);
+        //for "buttons"
+        int mouseX = (int)(MouseInfo.getPointerInfo().getLocation().getX() - this.getLocationOnScreen().getX() + 8);
+        int mouseY = (int)(MouseInfo.getPointerInfo().getLocation().getY() - this.getLocationOnScreen().getY() + 31);
+        try {
+            g.drawImage(ImageIO.read(new File("media/back.png")), 0, 0, 800, 600, null);
+            g.drawImage(ImageIO.read(new File("media/test.png")), 0, 125, 800, 350, null);
+            g.drawImage(ImageIO.read(new File("media/test2.png")), -score*2, 125, 800, 350, null);
+            g.drawImage(ImageIO.read(new File("media/test2.png")), 800-score*2, 125, 800, 350, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (mouseX > 23 && mouseX < 90 && mouseY > 58 && mouseY < 126) {
             try {
-                g.drawImage(ImageIO.read(new File("media/back.png")), 0, 0, 800, 600, null);
-                g.drawImage(ImageIO.read(new File("media/test.png")), 0, 125, 800, 350, null);
-                g.drawImage(ImageIO.read(new File("media/test2.png")), -score*2, 125, 800, 350, null);
-                g.drawImage(ImageIO.read(new File("media/test2.png")), 800-score*2, 125, 800, 350, null);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (mouseX > 23 && mouseX < 90 && mouseY > 58 && mouseY < 126) {
-                try {
                     g.drawImage(ImageIO.read(new File("media/back-overlay.png")), 0, 0, 800, 600, null);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            //update position of obstacles and character
-            obstacles.get(obsIndex).update();
-            obstacles.get(obsIndex).draw(g);
-            c.update();
-            c.draw(g);
-            //collisions between character and obstacles
-            if (c.collide(obstacles.get(obsIndex))) {
-                if (!ouchStart) {
-                    ouch.play();
-                    ouchStart = true;
-                }
-                reset();
-                ouchStart = false;
-            }
-            //read+write high score & drawing score and high score+6
-            int highScore = 0;
-            try {
-                Scanner sc = new Scanner(new File("scores.txt"));
-                highScore = Integer.parseInt(sc.nextLine().trim());
-                sc.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            try {
-                FileWriter f = new FileWriter(new File("scores.txt"), false);
-                if (score > highScore) {
-                    f.write(score + "");
-                } else {
-                    f.write(highScore + "");
-                }
-                f.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+        }
+        //update position of obstacles and character
+        obstacles.get(obsIndex).update();
+        obstacles.get(obsIndex).draw(g);
+        c.update();
+        c.draw(g, charaSelect);
+        //collisions between character and obstacles
+        if (c.collide(obstacles.get(obsIndex))) {
+            if (!ouchStart) {
+                ouch.play();
+                ouchStart = true;
             }
-            g.setColor(new Color(18, 24, 51));
-            g.drawString("Score: " + score, 30, 500);
-            g.drawString("High Score: " + highScore, 30, 520);
-            g.setColor(Color.WHITE);
-            g.drawString("Score: " + score, 30, 500);
-            g.drawString("High Score: " + highScore, 30, 520);
+            reset();
+            ouchStart = false;
+        }
+        //read+write high score & drawing score and high score
+        int highScore = 0;
+        try {
+            Scanner sc = new Scanner(new File("scores.txt"));
+            highScore = Integer.parseInt(sc.nextLine().trim());
+            sc.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            FileWriter f = new FileWriter(new File("scores.txt"), false);
+            if (score > highScore) {
+                f.write(score + "");
+            } else {
+                f.write(highScore + "");
+            }
+            f.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        g.setColor(new Color(18, 24, 51));
+        g.drawString("Score: " + score, 30, 500);
+        g.drawString("High Score: " + highScore, 30, 520);
+        g.setColor(Color.WHITE);
+        g.drawString("Score: " + score, 30, 500);
+        g.drawString("High Score: " + highScore, 30, 520);
             //character jumping
             if (canJump) {
                 if (count < 20) {
@@ -313,9 +311,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
                 obsIndex = 0;
             }
             obstacles.get(obsIndex).setSpeed(speed);
-            if (songSixtiethSeconds/60 == 275 && bkgStart) {
-                bkg.stop();
-                bkgStart = false;
+            if (songSixtiethSeconds/60 == 275 && musicStart) {
+                music.stop();
+                musicStart = false;
                 songSixtiethSeconds = 0;
             }
         
@@ -354,7 +352,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         if (e.getKeyCode() == KeyEvent.VK_DOWN) {
             if (c.isCrouching()) {
                 c.move("reset");
-                c.setY(265);
             }
         }
     }
@@ -372,24 +369,60 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener, Mo
         if (mouseX > 182 && mouseX < 375 && mouseY > 344 && mouseY < 397) {
             if (currentState == 0) {
                 currentState = 2;
-                tempStart = false;
+                clickStart = false;
             }
         }
         if (mouseX > 439 && mouseX < 630 && mouseY > 344 && mouseY < 397) {
             if (currentState == 0) {
                 currentState = 1;
-                tempStart = false;
+                clickStart = false;
             }
         }
         if (mouseX > 273 && mouseX < 541 && mouseY > 517 && mouseY < 573) {
             if (currentState == 2) {
                 currentState = 3;
-                tempStart = false;
+                clickStart = false;
             }
         }
         if (mouseX > 23 && mouseX < 90 && mouseY > 58 && mouseY < 126) {
             currentState = 0;
-            tempStart = false;
+            clickStart = false;
+        }
+        if (mouseX > 703 && mouseX < 784 && mouseY > 287 && mouseY < 398) {
+            clickStart = false;
+            if (currentState == 2) {
+                //write choice to file
+                try {
+                    FileWriter f = new FileWriter(new File("chara.txt"), false);
+                    f.write(1 + "");
+                    f.close();
+                } catch (IOException i) {
+                    i.printStackTrace();
+                }
+                //play sound
+                if (!clickStart) {
+                    click.play();
+                    clickStart = true;
+                }
+            }
+        }
+        if (mouseX > 30 && mouseX < 111 && mouseY > 287 && mouseY < 398) {
+            clickStart = false;
+            if (currentState == 2) {
+                //write choice to file
+                try {
+                    FileWriter f = new FileWriter(new File("chara.txt"), false);
+                    f.write(0 + "");
+                    f.close();
+                } catch (IOException i) {
+                    i.printStackTrace();
+                }
+                //play sound
+                if (!clickStart) {
+                    click.play();
+                    clickStart = true;
+                }
+            }
         }
     }
 

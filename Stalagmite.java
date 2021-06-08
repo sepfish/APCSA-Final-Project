@@ -5,16 +5,22 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Stalagmite extends Obstacle{
+public class Stalagmite extends Obstacle {
+    private BufferedImage image;
 
     public Stalagmite(int x, int speed) {
         super(x, 395, speed);
+        try {
+            image = ImageIO.read(new File("media/stalagmite-1.png"));
+        } catch (IOException e) {
+            image = null;
+        }
     }
 
     public void draw(Graphics g) {
-        try {
-            g.drawImage(ImageIO.read(new File("media/stalagmite-1.png")), getX(), getY(), 60, 80, null);
-        } catch (IOException e) {
+        if (image != null) {
+            g.drawImage(image, getX(), getY(), 60, 80, null);
+        } else {
             super.draw(g);
         }
     }
